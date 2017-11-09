@@ -63,21 +63,12 @@ main = hakyll $ do
     match "site-src/index.html" $ do
         route baseRoute
         compile $ do
-            let indexCtx = field "post" $ const (itemBody <$> mostRecentPost)
+            --let indexCtx = field "post" $ const (itemBody <$> mostRecentPost)
             let homeCtx = constField "title" "Home" `mappend` defaultContext
-
             getResourceBody
-                >>= applyAsTemplate indexCtx
+            --  >>= applyAsTemplate indexCtx
                 >>= loadAndApplyTemplate "site-src/templates/default.html" homeCtx
                 >>= relativizeUrls
-
-    create ["rss.xml"] $ do
-        route idRoute
-        compile $ do
-            let feedCtx = postCtx `mappend` bodyField "description"
-
-            posts <- take 10 <$> (recentFirst =<< loadAllSnapshots "site-src/blog-content/posts/*" "content")
-            renderRss feedConfig feedCtx posts
 
     match "site-src/templates/*" $ compile templateCompiler
 
@@ -87,15 +78,6 @@ baseRoute = gsubRoute "site-src/" (const "") `composeRoutes` gsubRoute "blog-con
 
 extensions :: Set.Set Extension
 extensions = Set.fromList [Ext_inline_notes, Ext_raw_html, Ext_tex_math_dollars]
-
-feedConfig :: FeedConfiguration
-feedConfig = FeedConfiguration {
-        feedTitle       = "AustinRochford.com",
-        feedDescription = "Math, Data, and Software",
-        feedAuthorName  = "Austin Rochford",
-        feedAuthorEmail = "austin.rochford@gmail.com",
-        feedRoot        = "http://austinrochford.com"
-    }
 
 mostRecentPost :: Compiler (Item String)
 mostRecentPost = head <$> (recentFirst =<< loadAllSnapshots "site-src/blog-content/posts/*" "content")
