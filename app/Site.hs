@@ -5,72 +5,76 @@ import Data.Monoid
 import qualified Data.Set as Set
 import Text.Pandoc.Options
 import Hakyll
+import qualified GHC.IO.Encoding as E
 
 main :: IO ()
-main = hakyll $ do
-    match "site-src/static/css/**" $ route staticRoute >> compile compressCssCompiler
-
-    match "site-src/static/favicon.ico" $ route staticRoute >> compile copyFileCompiler
-
-    match "site-src/static/*.mkd" staticMarkdownRule
-
-    match "site-src/blog-content/resources/**" $ route baseRoute >> compile copyFileCompiler
-
-    tags <- buildTags "site-src/blog-content/posts/*" $ fromCapture "tags/*.html"
-
-    match "site-src/blog-content/posts/*" $ do
-        route $ baseRoute `composeRoutes` setExtension "html"
-        compile $ pandocCompiler'
-            >>= loadAndApplyTemplate "site-src/templates/post.html" (taggedPostCtx tags)
-            >>= saveSnapshot "content"
-            >>= loadAndApplyTemplate "site-src/templates/default.html" postCtx
-            >>= relativizeUrls
-
-    create ["posts.html"] $ do
-        route idRoute
-        compile $ do
-            let archiveCtx =
-                    field "posts" (const $ postList recentFirst)    `mappend`
-                    constField "title" "Posts"                      `mappend`
-                    defaultContext
-
-            makeItem ""
-                >>= loadAndApplyTemplate "site-src/templates/posts.html" archiveCtx
-                >>= loadAndApplyTemplate "site-src/templates/default.html" archiveCtx
+main = do
+    E.setLocaleEncoding E.utf8  
+    hakyll $ do
+    
+        match "site-src/static/css/**" $ route staticRoute >> compile compressCssCompiler
+        
+        match "site-src/static/favicon.ico" $ route staticRoute >> compile copyFileCompiler
+        
+        match "site-src/static/*.md" staticMarkdownRule
+        
+        match "site-src/blog-content/resources/**" $ route baseRoute >> compile copyFileCompiler
+        
+        tags <- buildTags "site-src/blog-content/posts/*" $ fromCapture "tags/*.html"
+        
+        match "site-src/blog-content/posts/*" $ do
+            route $ baseRoute `composeRoutes` setExtension "html"
+            compile $ pandocCompiler'
+                >>= loadAndApplyTemplate "site-src/templates/post.html" (taggedPostCtx tags)
+                >>= saveSnapshot "content"
+                >>= loadAndApplyTemplate "site-src/templates/default.html" postCtx
                 >>= relativizeUrls
-
-    tagsRules tags $ \tag pattern -> do
-        let tagCtx = constField "title" ("Posts tagged " ++ tag) `mappend` defaultContext
-
-        route idRoute
-        compile $ postsTagged tags pattern recentFirst
-            >>= makeItem
-            >>= loadAndApplyTemplate "site-src/templates/tag.html" tagCtx
-            >>= loadAndApplyTemplate "site-src/templates/default.html" tagCtx
-            >>= relativizeUrls
-
-    create ["tags.html"] $ do
-        route idRoute
-        compile $ do
-            let cloudCtx = constField "title" "Tags" `mappend` defaultContext
-
-            renderTagCloud 100 300 tags
+        
+        create ["posts.html"] $ do
+            route idRoute
+            compile $ do
+                let archiveCtx =
+                        field "posts" (const $ postList recentFirst)    `mappend`
+                        constField "title" "Posts"                      `mappend`
+                        defaultContext
+                
+                makeItem ""
+                    >>= loadAndApplyTemplate "site-src/templates/posts.html" archiveCtx
+                    >>= loadAndApplyTemplate "site-src/templates/default.html" archiveCtx
+                    >>= relativizeUrls
+                
+        tagsRules tags $ \tag pattern -> do
+            let tagCtx = constField "title" ("Posts tagged " ++ tag) `mappend` defaultContext
+        
+            route idRoute
+            compile $ postsTagged tags pattern recentFirst
                 >>= makeItem
-                >>= loadAndApplyTemplate "site-src/templates/cloud.html" cloudCtx
-                >>= loadAndApplyTemplate "site-src/templates/default.html" cloudCtx
+                >>= loadAndApplyTemplate "site-src/templates/tag.html" tagCtx
+                >>= loadAndApplyTemplate "site-src/templates/default.html" tagCtx
                 >>= relativizeUrls
-
-    match "site-src/index.html" $ do
-        route baseRoute
-        compile $ do
-            --let indexCtx = field "post" $ const (itemBody <$> mostRecentPost)
-            let homeCtx = constField "title" "Home" `mappend` defaultContext
-            getResourceBody
-            --  >>= applyAsTemplate indexCtx
-                >>= loadAndApplyTemplate "site-src/templates/default.html" homeCtx
-                >>= relativizeUrls
-
-    match "site-src/templates/*" $ compile templateCompiler
+        
+        create ["tags.html"] $ do
+            route idRoute
+            compile $ do
+                let cloudCtx = constField "title" "Tags" `mappend` defaultContext
+            
+                renderTagCloud 100 300 tags
+                    >>= makeItem
+                    >>= loadAndApplyTemplate "site-src/templates/cloud.html" cloudCtx
+                    >>= loadAndApplyTemplate "site-src/templates/default.html" cloudCtx
+                    >>= relativizeUrls
+            
+        match "site-src/index.html" $ do
+            route baseRoute
+            compile $ do
+                --let indexCtx = field "post" $ const (itemBody <$> mostRecentPost)
+                let homeCtx = constField "title" "Home" `mappend` defaultContext
+                getResourceBody
+                --  >>= applyAsTemplate indexCtx
+                    >>= loadAndApplyTemplate "site-src/templates/default.html" homeCtx
+                    >>= relativizeUrls
+            
+        match "site-src/templates/*" $ compile templateCompiler
 
 
 baseRoute :: Routes
