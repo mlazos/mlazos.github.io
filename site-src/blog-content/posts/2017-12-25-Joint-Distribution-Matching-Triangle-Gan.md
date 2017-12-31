@@ -129,7 +129,7 @@ for i in range(0, 1000):
 ```
 You may notice that we run the discriminator training step 10 times for each generator training step. This has been [shown](https://papers.nips.cc/paper/5423-generative-adversarial-nets.pdf) to have better convergence properties and avoids the scenario where the generators learn to fool the discriminator by "playing it safe" and generating less diverse samples, i.e. mapping many samples of the noise distribution to the same value of the conditional distribution. By training the discriminator more, we allow the discriminator to better generalize and accept more diverse samples. In our case though, this is more to allow the networks to converge faster. If the discriminators converge faster, the faster the generators can learn how to fool them.
 
-## Closing Thoughts
+### Closing Thoughts
 I was pretty surprised at how sensitive this GAN is to its hyperparameters. Even small adjustments to the learning rate can dramatically alter the final distributions. Another surprise for me was how much more effective using tanh vs leaky relu was for these networks. I suspect this is due to the dying relu problem, because the learning rate is set pretty high in order to get faster convergence. This could be a good exercise to investigate Tensorflow internals, but I haven't had time to investigate further. 
 
-## Extensions
+### Extensions

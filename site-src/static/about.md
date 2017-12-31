@@ -28,9 +28,9 @@ This is an implementation of a small core language that models some aspects of c
 
 ***
 
-#### [Honors Thesis]()
+#### [Honors Thesis](/resources/Automatic_Pixel_Classification_for_Indoor_Navigation.pdf)
 
-This is an implementation of a custom model that consists of an SVM paired with an HMM to identify navigable terrain for a small robot indoors using only a monocular image. ([code]())
+This is an implementation of a custom model that consists of an SVM paired with an HMM to identify navigable terrain for a small robot indoors using only a monocular image. ([code](https://github.com/mlazos/HonorsThesis))
 
 ***
 
