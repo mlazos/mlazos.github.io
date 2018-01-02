@@ -35,3 +35,8 @@ This introduced the concept of attention in neural models. Attention is a widely
 This is an example of a model which utilizes attention in  a straightforward way. This serves as an alternative example to [Neural Machine Translation By Jointly Learning To Align and Translate](https://arxiv.org/pdf/1409.0473.pdf)
 
 ***
+
+#### [Generative Adversarial Nets](https://papers.nips.cc/paper/5423-generative-adversarial-nets.pdf)
+This introduced Generative Adversarial Networks, a powerful tool for sampling from arbitrary distributions in an entirely unsupervised way.
+
+***
