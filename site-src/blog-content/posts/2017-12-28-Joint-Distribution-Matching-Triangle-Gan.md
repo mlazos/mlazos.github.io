@@ -149,4 +149,4 @@ And with that we're finished! Take a look at the extensions below, or check out 
 
 * Generate a 2D heat map of the decision boundary for the discriminator networks and verify that they have converged to the optimal values.
 
-<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML"></script>
+<script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML" type="text/javascript"></script>
