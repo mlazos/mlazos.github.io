@@ -2,6 +2,8 @@
 title: Projects
 ---
 
+## Projects
+
 ***
 
 #### [Server Optimization](https://www.google.com/patents/US9734036)
