@@ -4,39 +4,10 @@ title: About
 
 ## About
 
-I am a software engineer at Microsoft on the Exchange Inference team. My interests are machine learning and programming language design.
+I am a software engineer at Microsoft on the Exchange Inference team where I work on building machine learning features for email, protoytping models on FPGAs, and infrastructure to train and run these models in low-latency scenarios. My technical interests are machine learning and programming language design. Outside of tech, I enjoy playing the piano, going for runs in the outdoors, and skiing. I graduated from Brown University in 2015 with a Bachelor of Science in Computer Engineering with Honors. I enjoy meeting new people so if you'd like to reach out to talk about tech, careers, Seattle or just about anything else, my contact info is below.
 
-## Projects
+My email is m[last name]922[at]gmail.com
 
-***
+[LinkedIn Profile](https://www.linkedin.com/in/michael-lazos-9a5b4679/)
 
-#### [Server Optimization](https://www.google.com/patents/US9734036)
-
-This was a project I worked on during an internship at IBM. We implemented a genetic algorithm to optimize apache server configurations.
-
-***
-
-#### [Triangle GAN](https://mlazos.github.io/posts/2017-12-28-Joint-Distribution-Matching-Triangle-Gan.html)
-
-This is a toy problem I implemented to gain a better understanding of current topics in adversarial learning. [[code](https://github.com/mlazos/triangle-gan-tf)]
-
-***
-
-#### [Honors Thesis](/resources/HonorsThesis.pdf)
-
-This is an implementation of a custom model that consists of an SVM paired with an HMM to identify navigable terrain for a small robot indoors using only a monocular image. [[code](https://github.com/mlazos/HonorsThesis/tree/master/SVMFullFeatureSet/C_implementation)]
-
-***
-
-#### [Kinematics, Rapidly-Exploring Random Trees](https://github.com/mlazos/cs1480)
-
-This is an implementation of forward/inverse kinematics, and path finding with rapidly-exploring random trees. This is simulated using a javascript robotics simulator. 
-
-***
-
-#### [RubyCore](https://github.com/mlazos/RubyCore)
-
-This is an implementation of a small core language that models some aspects of control flow in Ruby.
-
-***
 
