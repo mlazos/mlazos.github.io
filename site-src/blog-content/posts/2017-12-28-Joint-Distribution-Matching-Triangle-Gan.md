@@ -139,6 +139,7 @@ You may notice that we run the discriminator training step 10 times for each gen
  |:---:|:---:|:---:|
 | $p(x,y)$ | $p_{G_x}(x,y)$ | $p_{G_y}(x,y)$ |
 <br>
+
 And with that we're finished! Take a look at the extensions below, or check out the [full code](https://github.com/mlazos/triangle-gan-tf).
 
 ### Closing Thoughts
