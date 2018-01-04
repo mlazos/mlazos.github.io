@@ -9,7 +9,7 @@ Cross-Domain joint distribution matching is the problem of taking samples from t
 
 ### Triangle GAN Architecture
 <div style="text-align:center" markdown="1">
-![__Figure 1__: Triangle Gan Architecture from [Gan et al.](https://papers.nips.cc/paper/7109-triangle-generative-adversarial-networks)](/resources/triangle_gan_architecture_75.jpg "Triangle GAN Architecture")
+![__Figure 1__: Triangle Gan Architecture from [Gan et al.](https://papers.nips.cc/paper/7109-triangle-generative-adversarial-networks)](/resources/triangle_gan_architecture_75.jpg "Triangle GAN Architecture" ){ width=80% }
 </div>
 
 The Triangle GAN consists of two generators, $G_y$, $G_x$ and two discriminators $D_1$, $D_2$ with the goal of learning how to generate samples $(x,y)$ from the distribution $p(x, y)$. As a motivating example, let's understand the architecture for the problem of generating a random image along with a random caption that describes that image. An initial assumption of this model is that we can easily sample from our two domains independently, so in this problem we should be able to sample from the space of images and also from the space of captions. In order to generate our $(image, caption)$ pairs we need a way to generate an image given a caption and vice versa. This is where the generators come in. The generator $G_{c}$ generates $caption_{fake}$ from $p_{G_c}(caption|image)$ which after training should approximate the true $p(caption|image)$ distribution. Similarly the generator $G_{i}$ generates $image_{fake}$ from $p_{G_i}(image|caption)$. With these two generators two versions of the joint distribution can be defined. $G_c$ induces the distribution $p_{G_c}(image, caption)=p_{G_c}(caption|image)p(image)$ while $G_i$ induces $p_{G_i}(image, caption)=p_{G_i}(image|caption)p(caption)$.  So in order to create a pair $(image, caption)$ we can either first sample an image from $p(image)$ and then using $G_c$ generate an associated caption from $p_{G_c}(caption|image)$ or we can first sample a caption and use $G_c$ to generate an associated image from $p_{G_i}(image|caption)$. So we have two kinds of pairs that we can generate, $(image, caption_{G_c})$ and $(image_{G_i}, caption)$. Now the discriminators work in tandem to distinguish a small number of real pairs from the two kinds of generated pairs. In order to do this, $D_1$ tries to distinguish whether an $(image, caption)$ sample is real or fake, so it receives real samples, and samples from our two generators.  $D_2$ alternatively tries to distinguish whether a sample pair was generated from $G_i$ or $G_c$. Intuitively, $D_1$ informs the generators what kind of mapping they should be learning while $D_2$ serves the role of forcing the generators to approximate similar distributions.
@@ -41,7 +41,7 @@ First let's build some helper functions to create the different components of th
 This code creates a weight matrix and bias vector for each hidden layer, one for the output layer, and allows the caller to specify the input, hidden, and output dimension, along with the activations for the hidden and output layers.
 
 ### Generating Fake Data
-Using the components we've implemented, we're now going to build the generative portion of the model. In order to sample from the conditional distributions $p(x|y)$ and $p(y|x)$ we'll need a function that takes two inputs 1) some noise and 2) a sample from the other domain. The noise can be thought of as a source of randomness and the sample as the value of the variable we are conditioning on. To model this function we'll use a feedforward neural network which learns how to transform the sample from the noise distribution into samples from the conditional distribution. In code:
+Using the components we've implemented, we're now going to build the generative portion of the model. In order to sample from the conditional distributions $p_{G_x}(x|y)$ and $p_{G_y}(y|x)$ we'll need a function that takes two inputs 1) some noise and 2) a sample from the other domain. The noise can be thought of as a source of randomness and the sample as the value of the variable we are conditioning on. To model this function we'll use a feedforward neural network which learns how to transform the sample from the noise distribution into samples from the conditional distribution.
 
 ```python
 def generator(input):
@@ -56,7 +56,7 @@ with tf.variable_scope("generator_yx"):
 fake_x_pairs = tf.concat((x_given_y, y_samples_e), 1)
 fake_y_pairs = tf.concat((x_samples_e, y_given_x), 1)
 ```
-Here we create a scope for each generator. The network in the `generator_xy` scope generates a sample from domain $x$ given a noise sample $z$ and a sample from domain $y$, while the network in the `generator_yx` scope generates a sample from domain $y$ given a noise sample and a sample from domain $x$.
+Here we create a scope for each generator. The $G_x$ network in the `generator_xy` scope generates a sample from domain $x$ given a noise sample $z$ and a sample from domain $y$, while the $G_y$ network in the `generator_yx` scope generates a sample from domain $y$ given a noise sample and a sample from domain $x$.
 
 ### The Discriminators
 Our discriminators are modeled by simple feedforward networks as well:
@@ -78,13 +78,13 @@ with tf.variable_scope("disc_fake_x_or_fake_y") as d_fxfy_scope:
 We organize our code into two scopes, ```disc_real_fake``` for our real vs. fake discriminator and ```disc_fake_x_or_fake_y``` for our discriminator of fake sample types. This keeps our code nicely organized, and will also allow us to easily select which variables we want to train during adversarial learning. It's important to notice that we only compute scores for  `disc_fake_x_or_fake_y` on *fake* samples, and completely ignore *real* samples because it is meant to force the two generators to converge to the same distribution.   
 
 ### Minimizing the Discriminator Loss
-The objective of the discriminators is to 1) distinguish between real and fake samples and 2) distinguish between the two kinds of fake samples. Using this as a blueprint, `disc_real_fake`'s loss is designed to have the network learn to classify the real pairs as `1` and either of the fake pairs as `0`.
+The objective of the discriminators is to 1) distinguish between real and fake samples and 2) distinguish between the two kinds of fake samples. Using this as a blueprint, `disc_real_fake`'s loss is designed to have the $D_1$ network learn to classify the real pairs as `1` and either of the fake pairs as `0`.
 ```python
 loss_real_fake_disc = tf.losses.log_loss(ZEROS, fake_x_scores_drf) \
     + tf.losses.log_loss(ONES, real_scores_drf) \
     + tf.losses.log_loss(ZEROS, fake_y_scores_drf)
 ```
-Similarly, the loss of `disc_fake_x_or_fake_y` is designed to coerce the network to classify pairs with a fake $y$ component as `1` and classify pairs with a fake $x$ component as `0`:
+Similarly, the loss of `disc_fake_x_or_fake_y` is designed to coerce the $D_2$ network to classify pairs with a fake $y$ component as `1` and classify pairs with a fake $x$ component as `0`:
 ```python
 loss_fake_x_fake_y_disc = tf.losses.log_loss(ONES, fake_y_scores_dfxfy) \
     + tf.losses.log_loss(ZEROS, fake_x_scores_dfxfy)
@@ -112,7 +112,7 @@ train_step_generators = tf.train.AdamOptimizer(learning_rate=0.0025).minimize(lo
 The losses here show how the generator objective is the inverse of the discriminator objective. We coerce `fake_x_scores_drf`, `fake_x_scores_dfxfy`, and `fake_y_scores_drf` to the label `1` and `fake_y_scores_dfxfy` to label `0`, the exact opposite of the labels in the discriminator loss. We once again use the `AdamOptimizer` to minimize the generator loss with respect to the generator variables.
 
 ### Training Procedure
-Now the final step is generate our samples and train both the discriminators and the generators simultaneously. The data distribution we are trying to approximate is a mixture of 4 bivariate gaussians with means and variances described in the [paper](https://papers.nips.cc/paper/7109-triangle-generative-adversarial-networks) and our noise distribution is a guassian with mean 0 and variance 10. The higher variance is useful to make sure the noise distribution's support is a superset of the support of the distribution we are trying to sample from. This is a small optimization that means the generator network no longer needs to learn to stretch the space of the noise distribution to match the sample space of the data distribution. This speeds up training time because the network has fewer properties that it needs to learn.  We adopt a simplified training procedure to get faster results on a 2.6GHz laptop CPU. First we sample 1000 pairs from our data distribution. 500 act as supervised labeled pairs and 500 act as our independent $x$ and $y$ samples to provide to the generators to generate the fake $x$ and fake $y$ samples. We then pass the data to the respective training steps for the discriminator and generator. We iterate through this process 1000 times. [The full code is available on GitHub](https://github.com/mlazos/triangle-gan-tf).
+Now the final step is generate our samples and train both the discriminators and the generators simultaneously. The data distribution we are trying to approximate is a mixture of 4 bivariate gaussians with means and variances described in the [paper](https://papers.nips.cc/paper/7109-triangle-generative-adversarial-networks) and our noise distribution is a guassian with mean 0 and variance 10. The higher variance is useful to make sure the noise distribution has mass over the support of the distribution we are trying to sample from. This is a small optimization that means the generator network no longer needs to learn to stretch the space of the noise distribution to match the sample space of the data distribution. This speeds up training time because the network has fewer properties that it needs to learn.  We adopt a simplified training procedure to get faster results on a 2.6GHz laptop CPU. First we sample 1000 pairs from our data distribution. 500 act as supervised labeled pairs and 500 act as our independent $x$ and $y$ samples to provide to the generators to generate the fake $x$ and fake $y$ samples. We then pass the data to the respective training steps for the discriminator and generator. We iterate through this process 1000 times. [The full code is available on GitHub](https://github.com/mlazos/triangle-gan-tf).
 
 ```python
 for i in range(0, 1000):
@@ -133,7 +133,14 @@ for i in range(0, 1000):
     
     train_step_generators.run({x_samples:x_input, joint_samples:joint_input, y_samples:y_input, z_samples: z_input})
 ```
-You may notice that we run the discriminator training step 10 times for each generator training step. This has been [shown](https://papers.nips.cc/paper/5423-generative-adversarial-nets.pdf) to have better convergence properties and avoids the scenario where the generators learn to fool the discriminator by "playing it safe" and generating less diverse samples, i.e. mapping many samples of the noise distribution to the same value of the conditional distribution. By training the discriminator more, we allow the discriminator to better generalize and accept more diverse samples. In our case though, this is more to allow the networks to converge faster. If the discriminators converge faster, the faster the generators can learn how to fool them.
+You may notice that we run the discriminator training step 10 times for each generator training step. This has been [shown](https://papers.nips.cc/paper/5423-generative-adversarial-nets.pdf) to have better convergence properties and avoids the scenario where the generators learn to fool the discriminator by "playing it safe" and generating less diverse samples, i.e. mapping many samples of the noise distribution to the same value of the conditional distribution. By training the discriminator more, we allow the discriminator to better generalize and accept more diverse samples. In our case though, this is more to allow the networks to converge faster. After training the networks, we should get something like the following.
+
+ |![](/resources/triangle_gan_joint.png){ width=100% } | ![](/resources/triangle_gan_x_given_y.png){ width=100% } | ![](/resources/triangle_gan_y_given_x.png){ width=100% } |
+ |:---:|:---:|:---:|
+| $p(x,y)$ | $p_{G_x}(x,y)$ | $p_{G_y}(x,y)$ |
+<br>
+
+And with that we're finished! Take a look at the extensions below, or check out the [full code](https://github.com/mlazos/triangle-gan-tf).
 
 ### Closing Thoughts
 I was pretty surprised at how sensitive this GAN is to its hyperparameters. Even small adjustments to the learning rate can dramatically alter the final distributions. Another surprise for me was how much more effective using tanh vs leaky relu was for these networks. I suspect this is due to the dying relu problem, because the learning rate is set pretty high in order to get faster convergence. This could be a good tensorflow debugging exercise.
