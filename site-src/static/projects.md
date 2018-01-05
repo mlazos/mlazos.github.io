@@ -20,13 +20,13 @@ This is a toy problem I implemented to gain a better understanding of current to
 
 #### [Honors Thesis](/resources/HonorsThesis.pdf)
 
-This is an implementation of a custom model that consists of an SVM paired with an HMM to identify navigable terrain for a small robot indoors using only a monocular image. [[code](https://github.com/mlazos/HonorsThesis/tree/master/SVMFullFeatureSet/C_implementation)]
+This is an implementation of a custom model that consists of an SVM paired with an HMM to identify navigable terrain for a small robot indoors using only a monocular image. [[code](https://github.com/mlazos/HonorsThesis)]
 
 ***
 
 #### [Kinematics, Rapidly-Exploring Random Trees](https://github.com/mlazos/cs1480)
 
-This is an implementation of forward/inverse kinematics, and path finding with rapidly-exploring random trees. This is simulated using a javascript robotics simulator. 
+This is an implementation of forward/inverse kinematics, and path finding with rapidly-exploring random trees. This is simulated using a javascript robotics simulator.
 
 ***
 
@@ -35,4 +35,3 @@ This is an implementation of forward/inverse kinematics, and path finding with r
 This is an implementation of a small core language that models some aspects of control flow in Ruby.
 
 ***
-

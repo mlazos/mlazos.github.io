@@ -1,9 +1,8 @@
-These are the files necessary to produce my personal [blog](http://www.austinrochford.com) using [Hakyll](http://jaspervdj.be/hakyll/), a static site generator written in Haskell.
+These are the files necessary to produce my personal [blog](http://mlazos.github.io) using [Hakyll](http://jaspervdj.be/hakyll/), a static site generator written in Haskell.
 
-I recommend building this project inside a Docker container using the following commands.
+## Getting Started
 
 ```bash
-stack docker pull
 stack build
 ```
 
