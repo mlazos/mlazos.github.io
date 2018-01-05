@@ -2,7 +2,7 @@
 title: Reading List
 ---
 ## Reading List
-This is a list of papers that I've found personally really useful to learn some key deep learning concepts from first principles. I recommend reading through them a few times and take notes on what the authors emphasize as important.
+This is a list of papers that I've found personally really useful to learn some key deep learning concepts from first principles. I recommend reading through them a few times and take notes on what the authors emphasize.
 
 ***
 
