@@ -1,6 +1,7 @@
-These are the files necessary to produce my personal [blog](http://mlazos.github.io) using [Hakyll](http://jaspervdj.be/hakyll/), a static site generator written in Haskell.
+This is the repo for my [personal blog](http://mlazos.github.io)
 
 ## Getting Started
+Run the following command to build the blog generator.
 
 ```bash
 stack build
