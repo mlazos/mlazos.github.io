@@ -11,8 +11,32 @@ Cross-Domain joint distribution matching is the problem of taking samples from t
 <div style="text-align:center" markdown="1">
 ![__Figure 1__: Triangle Gan Architecture from [Gan et al.](https://papers.nips.cc/paper/7109-triangle-generative-adversarial-networks)](/resources/triangle_gan_architecture_75.jpg "Triangle GAN Architecture" ){ width=80% }
 </div>
+<br>
+The Triangle GAN consists of two generators, $G_x$, $G_y$ and two discriminators $D_1$, $D_2$ with the goal of learning how to generate samples $(x,y)$ from the distribution $p(x, y)$. As a motivating example, let's understand the architecture for the problem of generating a random image along with a random caption that describes that image. An initial assumption of this model is that we can easily sample from our two domains independently, so in this problem we should be able to sample from the space of images and also from the space of captions. This is typically done by having a large dataset which approximates the distribution we want to sample from. In order to generate our $(image, caption)$ pairs we need a way to generate an image given a caption and vice versa. This is where the generators come in. The generator $G_{c}$ generates $caption_{G_c}$ from $p_{G_c}(caption|image)$ given an image. So in order to get a pair, we first sample from our image distribution (i.e. a dataset), then pass that image to $G_c$ which then gives us a caption. This can be understood in terms of the [chain rule of probability](https://en.wikipedia.org/wiki/Chain_rule_(probability)). We are in essence sampling from the distribution $p_{G_c}(image, caption)=p_{G_c}(caption|image)p(image)$.
 
-The Triangle GAN consists of two generators, $G_y$, $G_x$ and two discriminators $D_1$, $D_2$ with the goal of learning how to generate samples $(x,y)$ from the distribution $p(x, y)$. As a motivating example, let's understand the architecture for the problem of generating a random image along with a random caption that describes that image. An initial assumption of this model is that we can easily sample from our two domains independently, so in this problem we should be able to sample from the space of images and also from the space of captions. In order to generate our $(image, caption)$ pairs we need a way to generate an image given a caption and vice versa. This is where the generators come in. The generator $G_{c}$ generates $caption_{G_c}$ from $p_{G_c}(caption|image)$ which after training should approximate the true $p(caption|image)$ distribution. Similarly the generator $G_{i}$ generates $image_{G_i}$ from $p_{G_i}(image|caption)$. With these two generators two versions of the joint distribution can be defined. $G_c$ induces the distribution $p_{G_c}(image, caption)=p_{G_c}(caption|image)p(image)$ while $G_i$ induces $p_{G_i}(image, caption)=p_{G_i}(image|caption)p(caption)$.  So in order to create a pair $(image, caption)$ we can either first sample an image from $p(image)$ and then using $G_c$ generate an associated caption from $p_{G_c}(caption|image)$ or we can first sample a caption and use $G_c$ to generate an associated image from $p_{G_i}(image|caption)$. So we have two kinds of pairs that we can generate, $(image, caption_{G_c})$ and $(image_{G_i}, caption)$. Now the discriminators work in tandem to distinguish a small number of real pairs from the two kinds of generated pairs. In order to do this, $D_1$ tries to distinguish whether an $(image, caption)$ sample is real or fake, so it receives real samples, and samples from our two generators.  $D_2$ alternatively tries to distinguish whether a sample pair was generated from $G_i$ or $G_c$. Intuitively, $D_1$ informs the generators what kind of mapping they should be learning while $D_2$ serves the role of forcing the generators to approximate similar distributions.
+<br>
+<div style="text-align:center" markdown="1">
+![__Figure 2__: Sampling procedure utilizing $G_c$](/resources/g_c_sampling.png){ width=80% }
+</div>
+<br>
+
+Similarly the generator $G_i$ generates $image_{G_i}$ from $p_{G_i}(image|caption)$. So in order to generate a joint pair from $G_i$, we first sample from our caption distribution, then pass that caption to $G_i$ to generate a sampled image. This pair is a sample from $p_{G_i}(image, caption)=p_{G_i}(image|caption)p(caption)$.
+
+<br>
+<div style="text-align:center" markdown="1">
+![__Figure 3__: Sampling procedure utilizing $G_i$](/resources/g_i_sampling.png){ width=80% }
+</div>
+<br>
+
+So we have two kinds of pairs that we can generate, $(image, caption_{G_c})$ and $(image_{G_i}, caption)$. Now the discriminators work in tandem to distinguish a small number of real pairs from the two kinds of generated pairs. In order to do this, $D_1$ tries to distinguish whether an $(image, caption)$ sample is real or fake, so it receives real samples, and samples from our two generators.  $D_2$ alternatively tries to distinguish whether a sample pair was generated from $p_{G_i}(image,caption)$ or $p_{G_c}(image,caption)$.
+
+<br>
+<div style="text-align:center" markdown="1">
+![__Figure 4__: Sampling procedure with discriminators](/resources/triangle_gan.png){ width=80% }
+</div>
+<br>
+
+Intuitively, $D_1$ informs the generators what kind of mapping they should be learning while $D_2$ serves the role of forcing the generators to approximate similar distributions.
 
 ### Implementation
 For the implementation, we'll be replicating a toy problem from the [paper](https://papers.nips.cc/paper/7109-triangle-generative-adversarial-networks). The goal of this problem is to train Triangle-GAN to sample from a mixture of four Gaussian distributions in 2D. We'll treat the $x$ and $y$ coordinates as our separate domains. [The full code is on Github](https://github.com/mlazos/triangle-gan-tf).
