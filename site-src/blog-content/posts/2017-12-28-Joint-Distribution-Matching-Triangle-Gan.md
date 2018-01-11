@@ -32,7 +32,7 @@ So we have two kinds of pairs that we can generate, $(image, caption_{G_c})$ and
 
 <br>
 <div style="text-align:center" markdown="1">
-![__Figure 4__: Sampling procedure with discriminators](/resources/triangle_gan.png){ width=80% }
+![__Figure 4__: Sampling procedure with discriminators](/resources/triangle_gan.png){ width=100% }
 </div>
 <br>
 
