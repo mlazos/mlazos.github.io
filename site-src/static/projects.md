@@ -6,9 +6,8 @@ title: Projects
 
 ***
 
-#### [Server Optimization](https://www.google.com/patents/US9734036)
-
-This was a project I worked on during an internship at IBM. We implemented a genetic algorithm to optimize apache server configurations.
+#### [Server Optimization](https://patents.google.com/patent/US9734036B2/)
+This was a project I worked on during an internship at IBM. We implemented a genetic algorithm to optimize apache server configurations, and were granted multiple patents [[1](https://patents.google.com/patent/US9734036B2/)][[2](https://patents.google.com/patent/US9852043B2/)] for this system. 
 
 ***
 
