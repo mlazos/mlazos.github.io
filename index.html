@@ -35,171 +35,41 @@
             <div class="row">
                 <div class="col-md-10 col-md-offset-1">
                     <div class="page-header">
-    <h1>Cross-Domain Distribution Matching with Triangle GANs</h1>
-    <small>Posted on December 28, 2017 <a href="./posts/2017-12-28-Joint-Distribution-Matching-Triangle-Gan.html"><i class="fa fa-link fa-lg fa-fw"></i></a></small>
+    <h1>Discovering the Kernel Trick</h1>
+    <small>Posted on April  2, 2018 <a href="./posts/2018-04-02-Discovering-Kernel-Trick.html"><i class="fa fa-link fa-lg fa-fw"></i></a></small>
 </div>
 
-<p>This is a tutorial on implementing <a href="https://papers.nips.cc/paper/7109-triangle-generative-adversarial-networks">Triangle Generative Adversarial Networks</a> from NIPS 2017. This is useful as a deep learning exercise in tensorflow while also learning about some of the newest research in generative adversarial models. For reference, all of the code in this tutorial is <a href="https://github.com/mlazos/triangle-gan-tf">available on Github</a>.</p>
-<h3 id="motivation-and-background">Motivation and Background</h3>
-<p>Cross-Domain joint distribution matching is the problem of taking samples from two domains, like text and images, and learning a joint distribution over them <em>i.e.</em> generate a random image along with its caption. The intuition here is that we would like to learn a mapping that matches samples from one domain to samples of the other. An example of this is attribute-conditional image generation, where given some attributes of an image, we want to generate a random image with those attributes. This is easily achievable if fully paired data is available, but often a fully labeled dataset is difficult to gather. There are multiple proposed solutions to this, including many fully unsupervised methods. These however have an important drawback, mainly that without any label information the learned mapping between the domains may not be the desired one - for instance, the model may learn that the attribute ‘man’ maps to a child image as long as the discriminator agrees and the reconstruction error is small. To solve this problem, triangle-GAN uses a few paired samples to inform the discriminators what kind of mapping is desired.</p>
-<h3 id="triangle-gan-architecture">Triangle GAN Architecture</h3>
-<div style="text-align:center" markdown="1">
+<p>In this post, I’ll explain the motivation of the kernel trick using a minimal example.</p>
+<h3 id="introduction">Introduction</h3>
+<p>Although the kernel trick can be applied to a variety of pattern recognition algorithms - essentially any that utilizes a similarity function - our focus will be on applying the kernel trick in the context of a classification problem utilizing a simple linear classifier.</p>
+<h3 id="background">Background</h3>
+<p>If you’re already familiar with the perceptron, then feel free to skip this section.</p>
+<h3 id="motivating-example-classifying-pressure-gauges">Motivating Example: Classifying Pressure Gauges</h3>
+<p>As a New England Patriots fan, I have in past years become acquainted with a tool that is used throughout modern sports: the pressure gauge. Let’s say an NFL referee has access to two pressure gauges, one which always produces measurements with an error that is less than +/- 5 PSI and another which always produces measurements with an error that is greater than +/- 4 PSI. The referee used both to measure the air pressure of an inflated football but can’t remember which measurements he took with each gauge. In order to conduct an objective investigation this information is important! (Especially to the NFL commissioner) Luckily, he still has access to the gauges and can gather some data to make an educated guess. The referee gathers some measurements and records the error. This yields the following measurements.</p>
 <div class="figure">
-<img src="./resources/triangle_gan_architecture_75.jpg" title="Triangle GAN Architecture" alt="Figure 1: Triangle Gan Architecture from Gan et al." style="width:80.0%" />
-<p class="caption"><strong>Figure 1</strong>: Triangle Gan Architecture from <a href="https://papers.nips.cc/paper/7109-triangle-generative-adversarial-networks">Gan et al.</a></p>
+<img src="./resources/gauge_errors.png" alt="Figure 1: Pressure Gauge Errors Recorded by Referee" style="width:80.0%" />
+<p class="caption"><strong>Figure 1</strong>: Pressure Gauge Errors Recorded by Referee</p>
 </div>
-</div>
-<p><br> The Triangle GAN consists of two generators, <span class="math inline">\(G_x\)</span>, <span class="math inline">\(G_y\)</span> and two discriminators <span class="math inline">\(D_1\)</span>, <span class="math inline">\(D_2\)</span> with the goal of learning how to generate samples <span class="math inline">\((x,y)\)</span> from the distribution <span class="math inline">\(p(x, y)\)</span>. As a motivating example, let’s understand the architecture for the problem of generating a random image along with a random caption that describes that image. An initial assumption of this model is that we can easily sample from our two domains independently, so in this problem we should be able to sample from the space of images and also from the space of captions. This is typically done by having a large dataset which approximates the distribution we want to sample from. In order to generate our <span class="math inline">\((image, caption)\)</span> pairs we need a way to generate an image given a caption and vice versa. This is where the generators come in. The generator <span class="math inline">\(G_{c}\)</span> generates <span class="math inline">\(caption_{G_c}\)</span> from <span class="math inline">\(p_{G_c}(caption|image)\)</span> given an image. So in order to get a pair, we first sample from our image distribution (i.e. a dataset), then pass that image to <span class="math inline">\(G_c\)</span> which then gives us a caption. This can be understood in terms of the <a href="https://en.wikipedia.org/wiki/Chain_rule_(probability)">chain rule of probability</a>. We are in essence sampling from the distribution <span class="math inline">\(p_{G_c}(image, caption)=p_{G_c}(caption|image)p(image)\)</span>.</p>
-<br>
-<div style="text-align:center" markdown="1">
+<p>So we take our linear classifier and try to train it on this data. Unfortunately, there really isn’t a way to have a single linear decision boundary with this data; it’s non-separable. This can be easily seen by simply looking at the data, there really isn’t a way to separate the data into two halves without some significant error. Looking at the structure of the data though, we can augment our error data with an additional feature. Rather than just using the error value itself, we can add another dimension to our data, by also taking into account the square of the error value as well. Augmenting our data with our new feature results gives us the following plot.</p>
 <div class="figure">
-<img src="./resources/g_c_sampling.png" alt="Figure 2: Sampling procedure utilizing G_c" style="width:80.0%" />
-<p class="caption"><strong>Figure 2</strong>: Sampling procedure utilizing <span class="math inline">\(G_c\)</span></p>
+<img src="./resources/gauge_errors_augmented.png" alt="Figure 2: Pressure Gauge Errors Augmented With Squared Error" style="width:80.0%" />
+<p class="caption"><strong>Figure 2</strong>: Pressure Gauge Errors Augmented With Squared Error</p>
 </div>
-</div>
-<p><br></p>
-<p>Similarly the generator <span class="math inline">\(G_i\)</span> generates <span class="math inline">\(image_{G_i}\)</span> from <span class="math inline">\(p_{G_i}(image|caption)\)</span>. So in order to generate a joint pair from <span class="math inline">\(G_i\)</span>, we first sample from our caption distribution, then pass that caption to <span class="math inline">\(G_i\)</span> to generate a sampled image. This pair is a sample from <span class="math inline">\(p_{G_i}(image, caption)=p_{G_i}(image|caption)p(caption)\)</span>.</p>
-<br>
-<div style="text-align:center" markdown="1">
-<div class="figure">
-<img src="./resources/g_i_sampling.png" alt="Figure 3: Sampling procedure utilizing G_i" style="width:80.0%" />
-<p class="caption"><strong>Figure 3</strong>: Sampling procedure utilizing <span class="math inline">\(G_i\)</span></p>
-</div>
-</div>
-<p><br></p>
-<p>So we have two kinds of pairs that we can generate, <span class="math inline">\((image, caption_{G_c})\)</span> and <span class="math inline">\((image_{G_i}, caption)\)</span>. Now the discriminators work in tandem to distinguish a small number of real pairs from the two kinds of generated pairs. In order to do this, <span class="math inline">\(D_1\)</span> tries to distinguish whether an <span class="math inline">\((image, caption)\)</span> sample is real or fake, so it receives real samples, and samples from our two generators. <span class="math inline">\(D_2\)</span> alternatively tries to distinguish whether a sample pair was generated from <span class="math inline">\(p_{G_i}(image,caption)\)</span> or <span class="math inline">\(p_{G_c}(image,caption)\)</span>.</p>
-<br>
-<div style="text-align:center" markdown="1">
-<div class="figure">
-<img src="./resources/triangle_gan.png" alt="Figure 4: Sampling procedure with discriminators" style="width:100.0%" />
-<p class="caption"><strong>Figure 4</strong>: Sampling procedure with discriminators</p>
-</div>
-</div>
-<p><br></p>
-<p>Intuitively, <span class="math inline">\(D_1\)</span> informs the generators what kind of mapping they should be learning while <span class="math inline">\(D_2\)</span> serves the role of forcing the generators to approximate similar distributions.</p>
-<h3 id="implementation">Implementation</h3>
-<p>For the implementation, we’ll be replicating a toy problem from the <a href="https://papers.nips.cc/paper/7109-triangle-generative-adversarial-networks">paper</a>. The goal of this problem is to train Triangle-GAN to sample from a mixture of four Gaussian distributions in 2D. We’ll treat the <span class="math inline">\(x\)</span> and <span class="math inline">\(y\)</span> coordinates as our separate domains. <a href="https://github.com/mlazos/triangle-gan-tf">The full code is on Github</a>.</p>
-<p>First let’s build some helper functions to create the different components of the model. What we’ll need is a multi-layer feedforward network - this will be the basic building block of the generators and discriminators.</p>
-<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python">    <span class="co"># for each layer create a weight matrix and bias vector</span>
-    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">0</span>, num_hidden_layers):
-        <span class="cf">with</span> tf.variable_scope(<span class="st">&quot;dense&quot;</span> <span class="op">+</span> <span class="bu">str</span>(i)):
-            w_n <span class="op">=</span> tf.get_variable(
-                <span class="st">&quot;w_&quot;</span> <span class="op">+</span> <span class="bu">str</span>(i), 
-                [prev_input_dim, hidden_dim], initializer<span class="op">=</span>tf.initializers.random_normal(<span class="dv">0</span>, <span class="dv">1</span>))
-            b_n <span class="op">=</span> tf.get_variable(
-                <span class="st">&quot;b_&quot;</span> <span class="op">+</span> <span class="bu">str</span>(i), 
-                [hidden_dim], 
-                initializer<span class="op">=</span>tf.initializers.random_normal(<span class="dv">0</span>, <span class="dv">1</span>))
-            prev_input_dim <span class="op">=</span> hidden_dim
-            prev_output <span class="op">=</span> hidden_activation(
-                tf.matmul(prev_output, w_n) <span class="op">+</span> b_n)
-    <span class="cf">with</span> tf.variable_scope(<span class="st">&quot;dense_output&quot;</span>):
-        <span class="cf">return</span> tf.layers.dense(
-                prev_output, 
-                output_dim, 
-                activation<span class="op">=</span>output_activation)</code></pre></div>
-<p>This code creates a weight matrix and bias vector for each hidden layer, one for the output layer, and allows the caller to specify the input, hidden, and output dimension, along with the activations for the hidden and output layers.</p>
-<h3 id="generating-fake-data">Generating Fake Data</h3>
-<p>Using the components we’ve implemented, we’re now going to build the generative portion of the model. In order to sample from the conditional distributions <span class="math inline">\(p_{G_x}(x|y)\)</span> and <span class="math inline">\(p_{G_y}(y|x)\)</span> we’ll need a function that takes two inputs 1) some noise and 2) a sample from the other domain. The noise can be thought of as a source of randomness and the sample as the value of the variable we are conditioning on. To model this function we’ll use a feedforward neural network which learns how to transform the sample from the noise distribution into samples from the conditional distribution.</p>
-<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="kw">def</span> generator(<span class="bu">input</span>):
-    <span class="cf">return</span> feedforward(<span class="bu">input</span>, <span class="dv">3</span>, num_units_gen, <span class="dv">1</span>, num_layers_gen, hidden_activation)
-
-<span class="cf">with</span> tf.variable_scope(<span class="st">&quot;generator_xy&quot;</span>):
-    x_given_y <span class="op">=</span> generator(z_y_samples)
-
-<span class="cf">with</span> tf.variable_scope(<span class="st">&quot;generator_yx&quot;</span>):
-    y_given_x <span class="op">=</span> generator(x_z_samples)
-
-fake_x_pairs <span class="op">=</span> tf.concat((x_given_y, y_samples_e), <span class="dv">1</span>)
-fake_y_pairs <span class="op">=</span> tf.concat((x_samples_e, y_given_x), <span class="dv">1</span>)</code></pre></div>
-<p>Here we create a scope for each generator. The <span class="math inline">\(G_x\)</span> network in the <code>generator_xy</code> scope generates a sample from domain <span class="math inline">\(x\)</span> given a noise sample <span class="math inline">\(z\)</span> and a sample from domain <span class="math inline">\(y\)</span>, while the <span class="math inline">\(G_y\)</span> network in the <code>generator_yx</code> scope generates a sample from domain <span class="math inline">\(y\)</span> given a noise sample and a sample from domain <span class="math inline">\(x\)</span>.</p>
-<h3 id="the-discriminators">The Discriminators</h3>
-<p>Our discriminators are modeled by simple feedforward networks as well:</p>
-<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="kw">def</span> discriminator(<span class="bu">input</span>):
-    <span class="cf">return</span> feedforward(<span class="bu">input</span>, <span class="dv">2</span>, num_units_disc, <span class="dv">1</span>, num_layers_disc, hidden_activation, tf.nn.sigmoid)
-
-<span class="cf">with</span> tf.variable_scope(<span class="st">&quot;disc_real_or_fake&quot;</span>) <span class="im">as</span> d_rf_scope:
-    fake_x_scores_drf <span class="op">=</span> discriminator(fake_x_pairs)
-    d_rf_scope.reuse_variables()
-    real_scores_drf <span class="op">=</span> discriminator(joint_samples)
-    fake_y_scores_drf <span class="op">=</span> discriminator(fake_y_pairs)
-
-<span class="cf">with</span> tf.variable_scope(<span class="st">&quot;disc_fake_x_or_fake_y&quot;</span>) <span class="im">as</span> d_fxfy_scope:
-    fake_x_scores_dfxfy <span class="op">=</span> discriminator(fake_x_pairs)
-    d_fxfy_scope.reuse_variables()
-    fake_y_scores_dfxfy <span class="op">=</span> discriminator(fake_y_pairs)</code></pre></div>
-<p>We organize our code into two scopes, <code>disc_real_fake</code> for our real vs. fake discriminator and <code>disc_fake_x_or_fake_y</code> for our discriminator of fake sample types. This keeps our code nicely organized, and will also allow us to easily select which variables we want to train during adversarial learning. It’s important to notice that we only compute scores for <code>disc_fake_x_or_fake_y</code> on <em>fake</em> samples, and completely ignore <em>real</em> samples because it is meant to force the two generators to converge to the same distribution.</p>
-<h3 id="minimizing-the-discriminator-loss">Minimizing the Discriminator Loss</h3>
-<p>The objective of the discriminators is to 1) distinguish between real and fake samples and 2) distinguish between the two kinds of fake samples. Using this as a blueprint, <code>disc_real_fake</code>’s loss is designed to have the <span class="math inline">\(D_1\)</span> network learn to classify the real pairs as <code>1</code> and either of the fake pairs as <code>0</code>.</p>
-<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python">loss_real_fake_disc <span class="op">=</span> tf.losses.log_loss(ZEROS, fake_x_scores_drf) <span class="op">\</span>
-    <span class="op">+</span> tf.losses.log_loss(ONES, real_scores_drf) <span class="op">\</span>
-    <span class="op">+</span> tf.losses.log_loss(ZEROS, fake_y_scores_drf)</code></pre></div>
-<p>Similarly, the loss of <code>disc_fake_x_or_fake_y</code> is designed to coerce the <span class="math inline">\(D_2\)</span> network to classify pairs with a fake <span class="math inline">\(y\)</span> component as <code>1</code> and classify pairs with a fake <span class="math inline">\(x\)</span> component as <code>0</code>:</p>
-<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python">loss_fake_x_fake_y_disc <span class="op">=</span> tf.losses.log_loss(ONES, fake_y_scores_dfxfy) <span class="op">\</span>
-    <span class="op">+</span> tf.losses.log_loss(ZEROS, fake_x_scores_dfxfy)</code></pre></div>
-<p>The total loss is simply the sum of the two discriminator losses. A training step consists of a gradient computation with respect to the discriminator variables, and then perturbing the network’s weights in a direction which allows the two discriminators to minimize the total loss. This operation is encapsulated in the <code>minimize</code> method of the built in <code>AdamOptimizer</code>. The learning rate of <code>0.0025</code> was chosen because the results were pretty good, and it also converged relatively quickly.</p>
-<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python">loss_discriminators <span class="op">=</span> loss_real_fake_disc <span class="op">+</span> loss_fake_x_fake_y_disc
-
-train_step_discriminators <span class="op">=</span> tf.train.AdamOptimizer(learning_rate<span class="op">=</span><span class="fl">0.0025</span>).minimize(loss_discriminators, var_list<span class="op">=</span>discriminator_vars)</code></pre></div>
-<h3 id="minimizing-the-generator-loss">Minimizing the Generator Loss</h3>
-<p>The goal of the generators is to generate samples that are indistinguishable from real samples. In essence, we design the generator losses so that minimizing the generator loss <em>maximizes</em> the discriminator loss. Since the discriminators only have binary labels, we have the generators learn to generate samples that result in discriminator scores closer to the label <em>opposite</em> to the label specified in the discriminator objective. In code:</p>
-<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python">loss_gen_x_y <span class="op">=</span> tf.losses.log_loss(ONES, fake_x_scores_drf) <span class="op">\</span>
-    <span class="op">+</span> tf.losses.log_loss(ONES, fake_x_scores_dfxfy)
-
-loss_gen_y_x <span class="op">=</span> tf.losses.log_loss(ONES, fake_y_scores_drf) <span class="op">\</span>
-    <span class="op">+</span> tf.losses.log_loss(ZEROS, fake_y_scores_dfxfy)
-
-loss_generators <span class="op">=</span> loss_gen_x_y <span class="op">+</span> loss_gen_y_x
-
-train_step_generators <span class="op">=</span> tf.train.AdamOptimizer(learning_rate<span class="op">=</span><span class="fl">0.0025</span>).minimize(loss_generators, var_list<span class="op">=</span>generator_vars)</code></pre></div>
-<p>The losses here show how the generator objective is the inverse of the discriminator objective. We coerce <code>fake_x_scores_drf</code>, <code>fake_x_scores_dfxfy</code>, and <code>fake_y_scores_drf</code> to the label <code>1</code> and <code>fake_y_scores_dfxfy</code> to label <code>0</code>, the exact opposite of the labels in the discriminator loss. We once again use the <code>AdamOptimizer</code> to minimize the generator loss with respect to the generator variables.</p>
-<h3 id="training-procedure">Training Procedure</h3>
-<p>Now the final step is generate our samples and train both the discriminators and the generators simultaneously. The data distribution we are trying to approximate is a mixture of 4 bivariate gaussians with means and variances described in the <a href="https://papers.nips.cc/paper/7109-triangle-generative-adversarial-networks">paper</a> and our noise distribution is a guassian with mean 0 and variance 10. The higher variance is useful to make sure the noise distribution has mass over the support of the distribution we are trying to sample from. This is a small optimization that means the generator network no longer needs to learn to stretch the space of the noise distribution to match the sample space of the data distribution. This speeds up training time because the network has fewer properties that it needs to learn. We adopt a simplified training procedure to get faster results on a 2.6GHz laptop CPU. First we sample 1000 pairs from our data distribution. 500 act as supervised labeled pairs and 500 act as our independent <span class="math inline">\(x\)</span> and <span class="math inline">\(y\)</span> samples to provide to the generators to generate the fake <span class="math inline">\(x\)</span> and fake <span class="math inline">\(y\)</span> samples. We then pass the data to the respective training steps for the discriminator and generator. We iterate through this process 1000 times. <a href="https://github.com/mlazos/triangle-gan-tf">The full code is available on GitHub</a>.</p>
-<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">0</span>, <span class="dv">1000</span>):
-    joint_input <span class="op">=</span> generate_samples(<span class="dv">125</span>)
-
-    np.random.shuffle(joint_input)
-
-    temp_input <span class="op">=</span> generate_samples(<span class="dv">125</span>)
-    
-    np.random.shuffle(temp_input)
-    x_input <span class="op">=</span> temp_input[:, <span class="dv">0</span>]
-    np.random.shuffle(temp_input)
-    y_input <span class="op">=</span> temp_input[:, <span class="dv">1</span>]
-    z_input <span class="op">=</span> np.random.multivariate_normal([<span class="dv">0</span>,<span class="dv">0</span>], [[<span class="fl">10.0</span>, <span class="fl">10.0</span>], [<span class="fl">10.0</span>, <span class="fl">10.0</span>]], <span class="dv">4</span> <span class="op">*</span> <span class="dv">125</span>)
-
-    <span class="cf">for</span> _ <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">0</span>, <span class="dv">9</span>):
-        train_step_discriminators.run({x_samples:x_input, joint_samples:joint_input, y_samples:y_input, z_samples: z_input})
-    
-    train_step_generators.run({x_samples:x_input, joint_samples:joint_input, y_samples:y_input, z_samples: z_input})</code></pre></div>
-<p>You may notice that we run the discriminator training step 10 times for each generator training step. This has been <a href="https://papers.nips.cc/paper/5423-generative-adversarial-nets.pdf">shown</a> to have better convergence properties and avoids the scenario where the generators learn to fool the discriminator by “playing it safe” and generating less diverse samples, i.e. mapping many samples of the noise distribution to the same value of the conditional distribution. By training the discriminator more, we allow the discriminator to better generalize and accept more diverse samples. In our case though, this is more to allow the networks to converge faster. After training the networks, we should get something like the following.</p>
-<table>
-<thead>
-<tr class="header">
-<th align="center"><img src="./resources/triangle_gan_joint.png" style="width:100.0%" /></th>
-<th align="center"><img src="./resources/triangle_gan_x_given_y.png" style="width:100.0%" /></th>
-<th align="center"><img src="./resources/triangle_gan_y_given_x.png" style="width:100.0%" /></th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td align="center"><span class="math inline">\(p(x,y)\)</span></td>
-<td align="center"><span class="math inline">\(p_{G_x}(x,y)\)</span></td>
-<td align="center"><span class="math inline">\(p_{G_y}(x,y)\)</span></td>
-</tr>
-</tbody>
-</table>
-<p><br></p>
-<p>And with that we’re finished! Take a look at the extensions below, or check out the <a href="https://github.com/mlazos/triangle-gan-tf">full code</a>.</p>
+<p>Now taking into account the squared value, the values farthest from zero will have larger second components than the values closer to zero, neatly separating our data in our artificial second dimension. So in this case, it was easy to see that creating a second component that consists of the square of the first will separate our data. So what did we actually do here? We created a <span class="math inline">\(feature map\)</span>, or a function that maps our original feature space into another higher-dimensional space. So all we need to do is apply our feature map to all of our data points and then we’re all set, right?</p>
+<h3 id="improving-efficiency-with-kernels">Improving Efficiency with Kernels</h3>
+<p>So we could apply our feature map to all of our data points, but can we do this more efficiently? Let’s take a closer look at our example. So right now our feature map looks like this: <span class="math inline">\(\phi(x)=(x, x^2)\)</span>, and looking at the equation for the perceptron, we take a dot product between an example to be classified and all of the training examples. This dot product computation <span class="math inline">\((x, x^2) * (y, y^2)\)</span> takes a total of 3 multiplies and an add (omitting the squaring for preprocessing), the procedure goes like this: <span class="math inline">\(x*y\)</span>, <span class="math inline">\(y^2\)</span>, <span class="math inline">\(x^2*y^2\)</span>. We can however, reorganize the equation to eliminate redundant computation: <span class="math inline">\(x*y + (x*y)^2\)</span>. With this equation we only need to compute the product <span class="math inline">\(x*y\)</span> once, reducing the total computation to 2 multiplies and an add. As an added benefit, we can reduce the memory footprint by half by no longer preprocessing our data! This is the kernel trick, and the closed form equation we found for the dot product is known as the <span class="math inline">\(kernel\)</span> function.</p>
+<h3 id="the-polynomial-kernel">The Polynomial Kernel</h3>
+<p>The feature map we constructed is actually a simpler version of a kernel that is well known, the polynomial kernel. It is defined as $K(x,y)=(x y + c)^d, where in our case <span class="math inline">\(d=2\)</span> so $K(x, y)= (xy + c)^2 =(xy)^2 + 2xyc + c = (x^2, x, ) (y^2, y, ). Which implies that our feature map is <span class="math inline">\(\phi(x)= (x^2, x\sqrt{2c}, \sqrt{c})\)</span> So as you can see, our kernel is essentially the polynomial kernel while ignoring the third constant dimension. This is an example of a kernel where preprocessing can become expensive if your feature space is high dimensional, because the implicit feature space dimension will combinatorially increase with the dimnension of your original feature space, while it will linearly increase with the parameter <span class="math inline">\(d\)</span>.</p>
+<h3 id="finding-valid-kernel-functions">Finding Valid Kernel Functions</h3>
+<p>The kernel function we found in the previous section was useful, but there are many others. How can we determine whether a given function is a valid kernel? In the previous section, we used our domain knowledge of our data to engineer our own feature map, <span class="math inline">\(\phi(x)=(x, x^2)\)</span>. To find the associated kernel <span class="math inline">\(K(x,y)\)</span>, we found a closed form for the expression <span class="math inline">\(\phi(x) \cdot \phi(y)\)</span>. This can always be done with any feature map that we construct ourselves. However, is there a way given a kernel <span class="math inline">\(K\)</span> to know whether it is a valid kernel? It so happens that there is a result from linear algebra called Mercer’s theorem. This theorem says that if you a have similarity function <span class="math inline">\(K(x,y)\)</span> that for any <span class="math inline">\(N\)</span> vectors</p>
+<h3 id="kernel-perceptron">Kernel Perceptron</h3>
 <h3 id="closing-thoughts">Closing Thoughts</h3>
-<p>I was pretty surprised at how sensitive this GAN is to its hyperparameters. Even small adjustments to the learning rate can dramatically alter the final distributions. Another surprise for me was how much more effective using tanh vs leaky relu was for these networks. I suspect this is due to the dying relu problem, because the learning rate is set pretty high in order to get faster convergence. This could be a good tensorflow debugging exercise.</p>
 <h3 id="extensions">Extensions</h3>
 <ul>
-<li><p>Lower the number of true joint samples we provide to the model during training, this would certainly increase the time taken to converge, but it would show off the main advantage of the model - that it can learn the joint distribution with a few paired samples.</p></li>
-<li><p>Train the model longer on more data. This should result in sharper approximated distributions.</p></li>
-<li><p>Generate a 2D heat map of the decision boundary for the discriminator networks and verify that they have converged to the optimal values.</p></li>
+<li>Lower the number of true joint samples we provide to the model during training, this would certainly increase the time taken to converge, but it would show off the main advantage of the model - that it can learn the joint distribution with a few paired samples.</li>
 </ul>
 <script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML" type="text/javascript"></script>
+<h3 id="explanation-of-perceptron-dual-equations">Explanation of Perceptron Dual Equations</h3>
 
                 </div>
             </div>
