@@ -4,8 +4,8 @@ synopsis:            My personal blog, generated using Hakyll
 homepage:            https://github.com/AustinRochford/blog
 license:             MIT
 license-file:        LICENSE
-author:              Austin Rochford
-maintainer:          austin.rochford@gmail.com
+author:              Michael Lazos
+maintainer:          mlazos922@gmail.com
 category:            Web
 build-type:          Simple
 cabal-version:       >=1.10
