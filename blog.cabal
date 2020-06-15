@@ -1,7 +1,7 @@
 name:                blog
 version:             0.1.0.0
-synopsis:            My personal blog, generated using Hakyll 
-homepage:            https://github.com/AustinRochford/blog
+synopsis:            My personal blog, generated using Hakyll
+homepage:            https://github.com/mlazos/mlazos.github.io
 license:             MIT
 license-file:        LICENSE
 author:              Michael Lazos
@@ -23,4 +23,4 @@ executable blog
 
 source-repository head
   type:     git
-  location: https://github.com/AustinRochford/blog
+  location: https://github.com/mlazos/mlazos.github.io
