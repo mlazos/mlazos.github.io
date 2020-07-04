@@ -3,13 +3,13 @@
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 
-        <title>Mike Lazos - Home</title>
+        <title>Mike Lazos - Decoding Devil's Chess</title>
 
         <link rel="stylesheet" type="text/css" href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css" />
         <link href="//netdna.bootstrapcdn.com/font-awesome/4.0.1/css/font-awesome.css" rel="stylesheet">
 
-        <link rel="stylesheet" type="text/css" href="./css/syntax.css" />
-        <link rel="stylesheet" type="text/css" href="./css/custom.css" />
+        <link rel="stylesheet" type="text/css" href="../css/syntax.css" />
+        <link rel="stylesheet" type="text/css" href="../css/custom.css" />
     </head>
     <body>
         <nav class="navbar navbar-default navbar-static-top">
@@ -19,11 +19,11 @@
                 </div>
                 <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
                     <ul class="nav navbar-nav">
-                        <li><a href="./index.html">Home</a></li>
-                        <li><a href="./about.html">About</a></li>
-                        <li><a href="./projects.html">Projects</a></li>
-                        <li><a href="./posts.html">Posts</a></li>
-                        <li><a href="./readings.html">Reading List</a></li>
+                        <li><a href="../index.html">Home</a></li>
+                        <li><a href="../about.html">About</a></li>
+                        <li><a href="../projects.html">Projects</a></li>
+                        <li><a href="../posts.html">Posts</a></li>
+                        <li><a href="../readings.html">Reading List</a></li>
                     </ul>
                     <ul class="nav navbar-nav navbar-right">
                         <li><a href="http://github.com/mlazos"><i class="fa fa-github fa-lg fa-fw"></i></a></li>
@@ -36,7 +36,7 @@
                 <div class="col-md-10 col-md-offset-1">
                     <div class="page-header">
     <h1>Decoding Devil's Chess</h1>
-    <small>Posted on July  3, 2020 <a href="./posts/2020-07-03-Chess-With-The-Devil.html"><i class="fa fa-link fa-lg fa-fw"></i></a></small>
+    <small>Posted on July  3, 2020 <a href="../posts/2020-07-03-Chess-With-The-Devil.html"><i class="fa fa-link fa-lg fa-fw"></i></a></small>
 </div>
 
 <style>
@@ -789,7 +789,6 @@ Parity Groups (Cell Indices)
 <p>If you’re familiar with the recursive structure of subsets and their relation to counting in binary, simply labeling each of our cells with their binary representation is one possible mapping of cells to parity groups. Each bit in the binary representation indicates membership in that digit’s respective parity group. So cell <code>001</code> is in parity group <code>0</code>. Cell <code>101</code> is in parity group <code>2</code> and <code>0</code>. This ensures each bit has a group in which it is paired with every other subset of bits, enabling the toggling of the bit to change the exact index bit(s) that we would like to toggle.</p>
 <p>This problem is also interesting if we consider boards without a power of 2 number of cells. In that case, it actually isn’t possible to solve (at least in this way), because there aren’t enough cells to map to each subset of index bits. For example, with 6 cells, you need 3 index bits still, and even with only 6 cells, we still may need to change any subset of the index bits. This is left as an exercise to for the reader.</p>
 <script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML" type="text/javascript"></script>
-
                 </div>
             </div>
         </div>
