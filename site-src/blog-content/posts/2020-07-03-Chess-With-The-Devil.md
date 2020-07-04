@@ -37,9 +37,10 @@ table.parityGroup caption {
 /* Clear floats after the columns */
 .pgrow {
     margin: auto;
-    width: 900px;
-    padding: 30px;
+    width: 500px;
+    padding: 20px;
     text-align: center;
+    border: solid red 1px;
 }
 .pgrow:after {
   content: "";
@@ -457,7 +458,7 @@ Running this in ghci yields the following results
 [[1,3,5,7,9,11,13,15,17,19,21,23,25,27,29,31,33,35,37,39,41,43,45,47,49,51,53,55,57,59,61,63],[2,3,6,7,10,11,14,15,18,19,22,23,26,27,30,31,34,35,38,39,42,43,46,47,50,51,54,55,58,59,62,63],[4,5,6,7,12,13,14,15,20,21,22,23,28,29,30,31,36,37,38,39,44,45,46,47,52,53,54,55,60,61,62,63],[8,9,10,11,12,13,14,15,24,25,26,27,28,29,30,31,40,41,42,43,44,45,46,47,56,57,58,59,60,61,62,63],[16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63],[32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63]]
 ```
 
-The first call to `parityGroups` almost exactly matches our hand-designed result. This is because there are very few possible mappings with so few cells. One difference that is prevalent is the lack of 0 as an index in any of the parity groups. The reason 0 is not present in any of the results is because we have different handling of the empty parity group. In our above hadn-designed examples we mapped our highest value (4 and 7 respectively) to the empty subset (toggling these cell indices left the index bits unchanged), the haskell code assigns 0 to the empty subset. 
+The first call to `parityGroups` almost exactly matches our hand-designed result. This is because there are very few possible mappings with so few cells. One difference that is prevalent is the lack of 0 as an index in any of the parity groups. The reason 0 is not present in any of the results is because we have different handling of the empty parity group. In our above manually designed examples we mapped our highest value, 4 and 7 respectively, to the empty subset. This is contrary to the haskell code, which assigns 0 to the empty subset. 
 
 ### Additional Thoughts
 If you're familiar with the recursive structure of subsets and their relation to counting in binary, simply labeling each of our cells with their binary representation is one possible mapping of cells to parity groups. Each bit in the binary representation indicates membership in that digit's respective parity group. So cell `001` is in parity group `0`. Cell `101` is in parity group `2` and `0`. This ensures each bit has a group in which it is paired with every other subset of bits, enabling the toggling of the bit to change the exact index bit(s) that we would like to toggle.
