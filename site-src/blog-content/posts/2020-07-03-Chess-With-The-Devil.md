@@ -40,7 +40,6 @@ table.parityGroup caption {
     width: 500px;
     padding: 20px;
     text-align: center;
-    border: solid red 1px;
 }
 .pgrow:after {
   content: "";
