@@ -426,7 +426,7 @@ So in the 2 previous examples we designed our own parity groups. How do we do th
 </tbody>
 </table>
 <br>
-<p><b>Figure 8</b>: Subsets and parity groups from previous examples</p>
+<p><b>Figure 8</b>: Subsets and Parity groups from previous examples</p>
 </div>
 <br>
 
