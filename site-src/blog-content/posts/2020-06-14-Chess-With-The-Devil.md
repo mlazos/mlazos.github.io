@@ -293,7 +293,8 @@ $\{0\} \rightarrow 0,
 \{0,1\} \rightarrow 3,
 \{1,2\} \rightarrow 4,
 \{0,2\} \rightarrow 5,
-\{0,1,2\} \rightarrow 6$. With this mapping each cell can toggle a subset of the index bits, and we can derive our parity groups in the following way: if a cell can toggle an index, it is in that index's parity group.  This results in the following parity groups.  
+\{0,1,2\} \rightarrow 6,
+\{\} \rightarrow 7$. With this mapping each cell can toggle a subset of the index bits, and we can derive our parity groups in the following way: if a cell can toggle an index, it is in that index's parity group.  This results in the following parity groups.  
 
 <div class="pgrow">
 <div class="column">
@@ -400,15 +401,15 @@ To derive this table, simply determine which index bits you'd like to change, an
 
 
 ### Generating Parity Groups
-So in the 2previous examples we designed our own parity groups. How do we do this for an 8x8 board though? Designing the parity groups by hand for 64 bits is definitely not worth the time. So let's see what patterns we can abstract from our small example. Our magic square index is representable by a 2-bit number, and we have 3 parity groups\*.  Each parity group maps to a single bit of our selected cell index, and those parity groups have elements that enable the toggling of any subset of our index bits. This insight is revealing: there is a combinatorial structure to our parity groups. Each element (cell index) in each parity group maps to a subset of our index bits, and toggling that cell toggles that subset of index bits. Let's compare out 2x2 example with a 4x2 example. 
+So in the 2 previous examples we designed our own parity groups. How do we do this for an 8x8 board though? Designing the parity groups by hand for 64 bits is definitely not worth the time. So let's see what patterns we can abstract from our examples. Our magic square index is representable by an n-bit number, and we have n parity groups\*.  Each parity group maps to a single bit of our selected cell index, and those parity groups have elements that enable the toggling of any subset of our index bits. This insight is revealing: there is a combinatorial structure to our parity groups. Each element (cell index) in each parity group maps to a subset of our index bits, and toggling that cell toggles that subset of index bits. Now we simply need to generate every subset of our index bits, and map it to a group of our 64 bits. How do we generate that mapping? Subtly, it's right in front of us. From the 4x2 example we can see that simply numbering each subset with a cell index will generate this mapping, because if the number of cells on the board is a power of 2, there is exactly one cell for each subset of index bits.
 
 <div class="center">
 <table class="std">
 <thead>
 <tr>
 <th>Dimensions</th>
-<th>Subsets</th>
-<th>Parity Groups</th>
+<th>Index Bit Subsets</th>
+<th>Parity Groups (Cell Indices)</th>
 </tr>
 </thead>
 <tbody>
@@ -419,31 +420,16 @@ So in the 2previous examples we designed our own parity groups. How do we do thi
 </tr>
 <tr>
 <td>4x2</td>
-<td>${x}$</td>
-<td>${x}$</td>
+<td>$\{0\},\{1\},\{2\},\{0,1\},\{1,2\},\{0,2\},\{0,1,2\}$</td>
+<td>$\{0,3,5,6\},\{1,3,4,6\},\{2,4,5,6\}$</td>
 </tr>
 </tbody>
 </table>
 <br>
-<p><b>Figure 3</b>: Cell index to toggle given devil's selection</p>
+<p><b>Figure 8</b>: Subsets and Parity groups from previous examples</p>
 </div>
 <br>
 
-
-
-Now we simply need to generate every subset of our index bits, and map it to a group of our 64 bits. How do we generate that mapping? Subtly, it's right in front of us. If you're familiar with the recursive structure of subsets and their relation to counting in binary, simply labeling each of our cells with their binary representation is one possible mapping of cells to parity groups. Each bit in the binary representation indicates membership in that digit's respective parity group. So cell `001` is in parity group `0`. Cell `101` is in parity group `2` and `0`. This ensures each bit has a group in which it is paired with every other subset of bits, enabling the toggling of the bit to change the exact index bit(s) that we would like to toggle.
-
-
-Since in this problem, the devil's configuration is random, and any cell can be chosen, we need to have parity group for every subset of the index bits, because we may need to change any number of those bits to arrive at our correct index. Let's go back to our 8x8 problem. Here we have 64 cells, which requires 6 index bits to represent our magic square index. 
-000
-001
-011
-010
-110
-111
-101
-100
-
-\* Technically three, but I am excluding the empty group.
+If you're familiar with the recursive structure of subsets and their relation to counting in binary, simply labeling each of our cells with their binary representation is one possible mapping of cells to parity groups. Each bit in the binary representation indicates membership in that digit's respective parity group. So cell `001` is in parity group `0`. Cell `101` is in parity group `2` and `0`. This ensures each bit has a group in which it is paired with every other subset of bits, enabling the toggling of the bit to change the exact index bit(s) that we would like to toggle.
 
 <script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML" type="text/javascript"></script>
