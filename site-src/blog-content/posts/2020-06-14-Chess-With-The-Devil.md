@@ -12,7 +12,6 @@ table.parityGroup {
   color: #000000;
   margin: auto;
 }
-
 table.parityGroup td, table.parityGroup th {
   border: 1px solid #000000;
   padding: 3px 5px;
@@ -61,7 +60,6 @@ table.parityGroup caption {
 }
 
 table.std {
-  font-family: "Times New Roman", Times, serif;
   border: 0px solid #000000;
   width: 600px;
   height: 200px;
@@ -80,11 +78,11 @@ table.std tr:nth-child(even) {
   background: #CECECE;
 }
 table.std thead {
-  background: #666666;
+  background: #545454;
   border-bottom: 5px solid #FFFFFF;
 }
 table.std thead th {
-  font-size: 17px;
+  font-size: 15px;
   font-weight: bold;
   color: #FFFFFF;
   text-align: center;
@@ -200,7 +198,7 @@ Let's delve into how this will work. Parity is computed by taking the xor ($\opl
 <th>Selected Cell</th>
 <th>Cell to Toggle</th>
 <th>Parity Group Change</th>
-<th>Index Bit Change</th>
+<th>Index Bits Change</th>
 </tr>
 </thead>
 <tbody>
@@ -235,15 +233,208 @@ Let's delve into how this will work. Parity is computed by taking the xor ($\opl
 </div>
 <br>
 
+From here, this can easily be extended to any other board layout, the only part that will change are the inital group parity values, the parity groups themselves are enough to enable toggling any subset of the index bits to achieve the desired value.
 
-do we need to map to a row and column of the board? Why not create any two arbitrary groups with a single overlapping cell? This approach does indeed work and is much more flexible.  
+### Another Example
+Let's apply our approach to a more complex problem to see if it generalizes. Let's use the following board.
+
+<div class="center-fixed">
+<div class="column">
+<table style="width: 100px;" class="parityGroup">    
+    <tbody>
+    <tr>
+      <td>0</td><td>1</td><td>1</td><td>1</td>
+    </tr>
+    <tr>
+      <td>1</td><td>0</td><td>0</td><td>1</td>
+    </tr>
+    </tbody>
+</table>
+</div>
+<p><b>Figure 4</b>: Sample 2x4 board</p>
+</div>
+
+Since we have 8 cells, we will need to determine our cell indices. There are many ways to count the cells, but let's go with the following indices.
+
+
+<div class="pgrow">
+<div class="column">
+<table style="width: 100px" class="parityGroup">   
+    <caption>Indices</caption>
+    <tbody>
+    <tr>
+      <td>0</td><td>1</td><td>2</td><td>3</td>
+    </tr>
+    <tr>
+      <td>4</td><td>5</td><td>6</td><td>7</td>
+    </tr>
+    </tbody>
+</table>
+</div>
+<div class="column">
+<table style="width:100px" class="parityGroup">
+    <caption>Index Bits</caption>
+    <tbody>
+    <tr>
+      <td>000</td><td>001</td><td>010</td><td>011</td>
+    </tr>
+    <tr>
+      <td>100</td><td>101</td><td>110</td><td>111</td>
+    </tr>
+</table>
+</div>
+<p><b>Figure 5</b>: Cell Indices in 2x4 case</p>
+</div>
+
+So now we have three index bits and we will once again need to toggle any subset of these bits. In this case, the possible subsets of the index bits are $\{0\},\{1\},\{2\},\{0,1\},\{1,2\},\{0,2\},\{0,1,2\}$. Now we simply need to assign each of these subsets a cell index, and we can construct our parity groups. Let's just number them from left to right starting with index 0. This results in the following mapping 
+$\{0\} \rightarrow 0,
+\{1\} \rightarrow 1,
+\{2\} \rightarrow 2,
+\{0,1\} \rightarrow 3,
+\{1,2\} \rightarrow 4,
+\{0,2\} \rightarrow 5,
+\{0,1,2\} \rightarrow 6$. With this mapping each cell can toggle a subset of the index bits, and we can derive our parity groups in the following way: if a cell can toggle an index, it is in that index's parity group.  This results in the following parity groups.  
+
+<div class="pgrow">
+<div class="column">
+<table style="width: 100px" class="parityGroup">    
+    <caption>Group 0</caption>
+    <tbody>
+    <tr>
+      <td class="group">0</td><td>1</td><td>1</td><td class="group">1</td>
+    </tr>
+    <tr>
+      <td>1</td><td class="group">0</td><td class="group">0</td><td>1</td>
+    </tr>
+    </tbody>
+</table>
+</div>
+<div class="column">
+<table style="width: 100px" class="parityGroup">
+    <caption>Group 1</caption>
+    <tbody>
+    <tr>
+      <td>0</td><td class="group">1</td><td>1</td><td class="group">1</td>
+    </tr>
+    <tr>
+      <td class="group">1</td><td>0</td><td class="group">0</td><td>1</td>
+    </tr>
+    </tbody>
+</table>
+</div>
+<div class="column">
+<table style="width: 100px" class="parityGroup">
+    <caption>Group 2</caption>
+    <tbody>
+    <tr>
+      <td>0</td><td>1</td><td class="group">1</td><td>1</td>
+    </tr>
+    <tr>
+      <td class="group">1</td><td class="group">0</td><td class="group">0</td><td>1</td>
+    </tr>
+    </tbody>
+</table>
+</div>
+<p><b>Figure 6</b>: Parity groups in 2x4 case</p>
+</div>
+
+Now let's verify that we can handle any selection the devil may make. We'll reconstruct the table from the previous exercise, omitting the group transitions for brevity.
+
+<div class="center">
+<table class="std">
+<thead>
+<tr>
+<th>Selected Cell</th>
+<th>Cell to Toggle</th>
+<th>Index Bits Change</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0</td>
+<td>3</td>
+<td>011 $\rightarrow$ 000</td>
+</tr>
+<tr>
+<td>1</td>
+<td>1</td>
+<td>011 $\rightarrow$ 001</td>
+</tr>
+<tr>
+<td>2</td>
+<td>0</td>
+<td>011 $\rightarrow$ 010</td>
+</tr>
+<tr>
+<td>3</td>
+<td>None</td>
+<td>011 $\rightarrow$ 011</td>
+</tr>
+<tr>
+<td>4</td>
+<td>6</td>
+<td>011 $\rightarrow$ 100</td>
+</tr>
+<tr>
+<td>5</td>
+<td>4</td>
+<td>011 $\rightarrow$ 101</td>
+</tr>
+<td>6</td>
+<td>5</td>
+<td>011 $\rightarrow$ 110</td>
+</tr>
+<tr>
+<td>7</td>
+<td>2</td>
+<td>011 $\rightarrow$ 111</td>
+</tr>
+</tbody>
+</table>
+<br>
+<p><b>Figure 7</b>: Cell index to toggle given devil's selection</p>
+</div>
+<br>
+
+To derive this table, simply determine which index bits you'd like to change, and find that set of bits in our mapping to determine the cell index to toggle.
+
 
 ### Generating Parity Groups
-So in the 2x2 example we designed our own parity groups. How do we do this for an 8x8 board though? Designing the parity groups by hand for 64 bits is definitely not worth the time. So let's see what patterns we can abstract from our small example. Our magic square index is representable by a 2-bit number, and we have 3 parity groups\*.  This insight is revealing: there is a combinatorial structure to our parity groups. Each group is mapped to a subset of our magic square index bits. So for our 4 cell board, we have an empty group, where if we choose to change the parity of that group, no bits of magic square index bits change. For each parity group we need to be able change a subset of the magic square index bits. Since in this problem, the devil's configuration is random, and any cell can be chosen, we need to have parity group for every subset of the index bits, because we may need to change any number of those bits to arrive at our correct index. Let's go back to our 8x8 problem. Here we have 64 cells, which requires 6 index bits to represent our magic square index. 
+So in the 2previous examples we designed our own parity groups. How do we do this for an 8x8 board though? Designing the parity groups by hand for 64 bits is definitely not worth the time. So let's see what patterns we can abstract from our small example. Our magic square index is representable by a 2-bit number, and we have 3 parity groups\*.  Each parity group maps to a single bit of our selected cell index, and those parity groups have elements that enable the toggling of any subset of our index bits. This insight is revealing: there is a combinatorial structure to our parity groups. Each element (cell index) in each parity group maps to a subset of our index bits, and toggling that cell toggles that subset of index bits. Let's compare out 2x2 example with a 4x2 example. 
+
+<div class="center">
+<table class="std">
+<thead>
+<tr>
+<th>Dimensions</th>
+<th>Subsets</th>
+<th>Parity Groups</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>2x2</td>
+<td>$\{0\},\{1\},\{0,1\}$</td>
+<td>$\{0,1\},\{1,3\}$</td>
+</tr>
+<tr>
+<td>4x2</td>
+<td>${x}$</td>
+<td>${x}$</td>
+</tr>
+</tbody>
+</table>
+<br>
+<p><b>Figure 3</b>: Cell index to toggle given devil's selection</p>
+</div>
+<br>
+
 
 
 Now we simply need to generate every subset of our index bits, and map it to a group of our 64 bits. How do we generate that mapping? Subtly, it's right in front of us. If you're familiar with the recursive structure of subsets and their relation to counting in binary, simply labeling each of our cells with their binary representation is one possible mapping of cells to parity groups. Each bit in the binary representation indicates membership in that digit's respective parity group. So cell `001` is in parity group `0`. Cell `101` is in parity group `2` and `0`. This ensures each bit has a group in which it is paired with every other subset of bits, enabling the toggling of the bit to change the exact index bit(s) that we would like to toggle.
 
+
+Since in this problem, the devil's configuration is random, and any cell can be chosen, we need to have parity group for every subset of the index bits, because we may need to change any number of those bits to arrive at our correct index. Let's go back to our 8x8 problem. Here we have 64 cells, which requires 6 index bits to represent our magic square index. 
 000
 001
 011
