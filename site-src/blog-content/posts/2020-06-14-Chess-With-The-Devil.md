@@ -401,7 +401,7 @@ To derive this table, simply determine which index bits you'd like to change, an
 
 
 ### Generating Parity Groups
-So in the 2 previous examples we designed our own parity groups. How do we do this for an 8x8 board though? Designing the parity groups by hand for 64 bits is definitely not worth the time. So let's see what patterns we can abstract from our examples. Our magic square index is representable by an n-bit number, and we have n parity groups\*.  Each parity group maps to a single bit of our selected cell index, and those parity groups have elements that enable the toggling of any subset of our index bits. This insight is revealing: there is a combinatorial structure to our parity groups. Each element (cell index) in each parity group maps to a subset of our index bits, and toggling that cell toggles that subset of index bits. Now we simply need to generate every subset of our index bits, and map it to a group of our 64 bits. How do we generate that mapping? Subtly, it's right in front of us. From the 4x2 example we can see that simply numbering each subset with a cell index will generate this mapping, because if the number of cells on the board is a power of 2, there is exactly one cell for each subset of index bits.
+So in the 2 previous examples we designed our own parity groups. How do we do this for an 8x8 board though? Designing the parity groups by hand for 64 bits is definitely not worth the time. So let's see what patterns we can abstract from our examples. 
 
 <div class="center">
 <table class="std">
@@ -430,6 +430,38 @@ So in the 2 previous examples we designed our own parity groups. How do we do th
 </div>
 <br>
 
+Our magic square index is representable by an n-bit number, and we have n parity groups.  Each parity group maps to a single bit of our selected cell index, and those parity groups have elements that enable the toggling of any subset of our index bits. This insight is revealing: there is a combinatorial structure to our parity groups. Each element (cell index) in each parity group maps to a subset of our index bits, and toggling that cell toggles that subset of index bits. Now we simply need to generate every subset of our index bits, and map it to a group of our 64 bits. How do we generate that mapping? Subtly, it's right in front of us. From the 4x2 example we can see that simply numbering each subset with a cell index will generate this mapping, and because if the number of cells on the board is a power of 2, there is exactly one cell for each subset of index bits. The following haskell code snippet does exactly what we describe, and generates a possible parity group that meets our needs.
+
+```haskell
+-- Generates all subsets of a list of elements
+subsets :: [a] -> [[a]]
+subsets = foldl (\acc el-> acc ++ (map (el:) acc)) [[]]
+
+-- Generates all subsets of numbers from 0-n, assigns each an index from left to right,
+-- and outputs which subset indices have each number 0-n as a member
+parityGroups :: Integer -> [[Integer]]
+parityGroups n = map parityGroup els
+    where els = [0..(n-1)]
+          indexedSubsets = zip (subsets els) [0..]
+          parityGroup x = map snd $ filter (\(subset, ind) -> x `elem` subset) indexedSubsets
+```
+Running this in ghci yields the following results
+```
+*Main Lib> parityGroups 2
+[[1,3],[2,3]]
+
+*Main Lib> parityGroups 3
+[[1,3,5,7],[2,3,6,7],[4,5,6,7]]
+
+*Main Lib> parityGroups 6
+[[1,3,5,7,9,11,13,15,17,19,21,23,25,27,29,31,33,35,37,39,41,43,45,47,49,51,53,55,57,59,61,63],[2,3,6,7,10,11,14,15,18,19,22,23,26,27,30,31,34,35,38,39,42,43,46,47,50,51,54,55,58,59,62,63],[4,5,6,7,12,13,14,15,20,21,22,23,28,29,30,31,36,37,38,39,44,45,46,47,52,53,54,55,60,61,62,63],[8,9,10,11,12,13,14,15,24,25,26,27,28,29,30,31,40,41,42,43,44,45,46,47,56,57,58,59,60,61,62,63],[16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63],[32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63]]
+```
+
+The first call to `parityGroups` almost exactly matches our hand-designed result. This is because there are very few possible mappings with so few cells. One difference that is prevalent is the lack of 0 as an index in any of the parity groups. The reason 0 is not present in any of the results is because we have different handling of the empty parity group. In our above hadn-designed examples we mapped our highest value (4 and 7 respectively) to the empty subset (toggling these cell indices left the index bits unchanged), the haskell code assigns 0 to the empty subset. 
+
+### Additional Thoughts
 If you're familiar with the recursive structure of subsets and their relation to counting in binary, simply labeling each of our cells with their binary representation is one possible mapping of cells to parity groups. Each bit in the binary representation indicates membership in that digit's respective parity group. So cell `001` is in parity group `0`. Cell `101` is in parity group `2` and `0`. This ensures each bit has a group in which it is paired with every other subset of bits, enabling the toggling of the bit to change the exact index bit(s) that we would like to toggle.
+
+This problem is also interesting if we consider boards without a power of 2 number of cells. In that case, it actually isn't possible to solve, because there aren't enough cells to map to each subset of index bits. For example, with 6 cells, you need 3 index bits still, and may need to flip  
 
 <script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML" type="text/javascript"></script>
