@@ -35,7 +35,49 @@
             <div class="row">
                 <div class="col-md-10 col-md-offset-1">
                     <h2 id="reading-list">Reading List</h2>
-<p>This is a list of papers that I’ve found personally really useful to learn some key deep learning concepts from first principles. I recommend reading through them a few times and take notes on what the authors emphasize.</p>
+<p>This is a list of reading material that I’ve personally found useful to learn key concepts in programming language design, functional programming and deep learning.</p>
+<hr />
+<h3 id="programming-languages">Programming Languages</h3>
+<hr />
+<h4 id="design-concepts-in-programming-languages"><a href="https://mitpress.mit.edu/books/design-concepts-programming-languages">Design Concepts in Programming Languages</a></h4>
+<p>This text provides a detailed introduction into programming language design with both semantic theory and hands-on implementations.</p>
+<hr />
+<h4 id="brown-university-cs1730-programming-languages"><a href="https://cs.brown.edu/courses/cs173/2014/assignments.html">Brown University CS1730: Programming Languages</a></h4>
+<p>Learning to design programs by writing gradually more complex interpreters - it’s the best way I’ve found to learn about programming language design.</p>
+<hr />
+<h4 id="continuation-passing-style"><a href="https://en.wikibooks.org/wiki/Haskell/Continuation_passing_style">Continuation Passing Style</a></h4>
+<p>This is the Haskell wikibook chapter on continuation passing style, it is a great introduction with use cases for CPS and runnable examples.</p>
+<hr />
+<h4 id="argument-against-callcc"><a href="http://okmij.org/ftp/continuations/against-callcc.html">Argument against CallCC</a></h4>
+<p>A discussion of the drawbacks of a general CallCC (Call With Current Continuation) construct.</p>
+<hr />
+<h4 id="introduction-to-programming-with-shift-and-reset"><a href="http://pllab.is.ocha.ac.jp/~asai/cw2011tutorial/main-e.pdf">Introduction to Programming with Shift and Reset</a></h4>
+<p>A simple introduction to utilizing delimited continuations (a proposed alternative to CallCC)</p>
+<hr />
+<h4 id="cps-ssa-correspondence"><a href="https://www.cs.purdue.edu/homes/suresh/502-Fall2008/papers/kelsey-ssa-cps.pdf">CPS-SSA Correspondence</a></h4>
+<p>This paper discusses the correspondence between static-single-assignment and continuation passing style.</p>
+<hr />
+<h3 id="functional-programming">Functional Programming</h3>
+<hr />
+<h4 id="functional-programming-with-bananas-lenses-envelopes-and-barbed-wire"><a href="https://maartenfokkinga.github.io/utwente/mmf91m.pdf">Functional Programming with Bananas, Lenses, Envelopes and Barbed Wire</a></h4>
+<p>This paper will blow your mind! It will show how recursion can be entirely abstracted away in functional programming and enable you to iterate over complex data types without any boilerplate.</p>
+<hr />
+<h4 id="introduction-to-recursion-schemes"><a href="https://blog.sumtypeofway.com/posts/introduction-to-recursion-schemes.html">Introduction to Recursion Schemes</a></h4>
+<p>This blog post provides a guide to the above paper with runnable code and incremental implementation of the main combinators described in the paper.</p>
+<hr />
+<h4 id="notions-of-computation-and-monads"><a href="https://www.cs.cmu.edu/~crary/819-f09/Moggi91.pdf">Notions of Computation and Monads</a></h4>
+<p>Moggi’s paper introducing the monad as a way of structuring functional progams.</p>
+<hr />
+<h4 id="learn-you-a-haskell-for-great-good"><a href="http://learnyouahaskell.com/chapters">Learn you a Haskell for Great Good</a></h4>
+<p>I use this as a solid reference for aspects of Haskell that I’ll sometimes forget, it’s elementary but extensive and detailed.</p>
+<hr />
+<h4 id="all-about-monads"><a href="https://wiki.haskell.org/All_About_Monads">All About Monads</a></h4>
+<p>A great introduction to a fundamental design pattern for functional programming, monads. It helped me to read a lot of tutorials and come to a general understanding that in short, monads implement a context-sensitive composition operator, but read on for more detail.</p>
+<hr />
+<h3 id="deep-learning">Deep Learning</h3>
+<hr />
+<h4 id="attention-is-all-you-need"><a href="https://arxiv.org/abs/1706.03762">Attention is All You Need</a></h4>
+<p>This paper introduces the tranformer architecture as a model for numerous language tasks without the drawbacks of serial computation used by RNNs.</p>
 <hr />
 <h4 id="long-short-term-memory"><a href="https://www.researchgate.net/publication/13853244_Long_Short-term_Memory">Long Short-Term Memory</a></h4>
 <p>This paper introduces the LSTM unit as a tool for sequence modeling. It provides a nice motivation for the design of the LSTM.</p>
@@ -53,7 +95,7 @@
 <p>This introduced the concept of attention in neural models. Attention is a widely used technique that essentially models an importance function that will be applied to inputs in order to inform the model about which inputs are the most informative for its operation.</p>
 <hr />
 <h4 id="hierarchical-attention-networks-for-document-classification"><a href="http://www.cs.cmu.edu/~./hovy/papers/16HLT-hierarchical-attention-networks.pdf">Hierarchical Attention Networks for Document Classification</a></h4>
-<p>This is an example of a model which utilizes attention in a straightforward way. This serves as an alternative example to <a href="https://arxiv.org/pdf/1409.0473.pdf">Neural Machine Translation By Jointly Learning To Align and Translate</a></p>
+<p>This is an example of a model which utilizes attention in a straightforward way. This serves as an alternative example to <a href="https://arxiv.org/pdf/1409.0473.pdf">Neural Machine Translation By Jointly Learning To Align and Translate</a>.</p>
 <hr />
 <h4 id="generative-adversarial-nets"><a href="https://papers.nips.cc/paper/5423-generative-adversarial-nets.pdf">Generative Adversarial Nets</a></h4>
 <p>This introduced Generative Adversarial Networks, a powerful tool for sampling from arbitrary distributions in an entirely unsupervised way.</p>
